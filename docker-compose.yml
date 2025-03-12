@@ -21,12 +21,21 @@ services:
     env_file:
       - .env
     labels:
+      # Traefik enable
       - 'traefik.enable=true'
-      - 'traefik.http.routers.wordpress.rule=Host(`pipeline.inqubi.eu`)'
-      - 'traefik.http.services.wordpress.loadbalancer.server.port=4000'
-      - 'traefik.http.routers.wordpress.tls.certresolver=letsencrypt'
+        # HTTP to HTTPS redirection
+      - 'traefik.http.routers.api-http.rule=Host(`pipeline.inqubi.eu`)'
+      - 'traefik.http.routers.api-http.entrypoints=http'
+      - 'traefik.http.routers.api-http.middlewares=redirect-to-https'
       - 'traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https'
-      - 'traefik.http.routers.wordpress.middlewares=redirect-to-https'
+
+      # HTTPS router with Let's Encrypt
+      - 'traefik.http.routers.api.rule=Host(`pipeline.inqubi.eu`)'
+      - 'traefik.http.routers.api.entrypoints=https'
+      - 'traefik.http.routers.api.tls.certresolver=letsencrypt'
+
+      # Backend service port
+      - 'traefik.http.services.api.loadbalancer.server.port=${SERVER_PORT}'
     networks:
       - log-net
 
@@ -34,5 +43,5 @@ networks:
   log-net:
     driver: bridge
   default:
-    external:
-      name: traefik_network
+    traefik_network:
+      external: true
