@@ -8,6 +8,9 @@ services:
       - .env
     volumes:
       - ./data:/var/lib/postgresql/data
+    networks:
+      - log-net
+      - proxy-net
 
   api:
     image: log-api:latest
@@ -19,8 +22,11 @@ services:
     env_file:
       - .env
     networks:
+      - log-net
       - proxy-net
 
 networks:
+  log-test:
+    driver: bridge
   proxy-net:
     external: true
