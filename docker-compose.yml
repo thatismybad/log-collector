@@ -6,8 +6,8 @@ services:
       - '${DB_PORT}:5432'
     env_file:
       - .env
-    # volumes:
-    #   - ./data:/var/lib/postgresql/data
+    volumes:
+      - ./data:/var/lib/postgresql/data
 
   api:
     image: log-api:latest
@@ -18,3 +18,9 @@ services:
       - db
     env_file:
       - .env
+    networks:
+      - proxy-net
+
+networks:
+  proxy-net:
+    external: true
