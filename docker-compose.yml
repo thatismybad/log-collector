@@ -9,6 +9,7 @@ services:
       - ./data:/var/lib/postgresql/data
     networks:
       - log-net
+      - traefik_network
 
   api:
     build:
@@ -21,16 +22,17 @@ services:
     env_file:
       - .env
     labels:
-      # Traefik enable
+      # Enable Traefik for this service
       - 'traefik.enable=true'
-        # HTTP to HTTPS redirection
-      - 'traefik.http.routers.api-http.rule=Host(`pipeline.inqubi.eu`)'
+
+      # HTTP -> HTTPS Redirection
+      - 'traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https'
+      - 'traefik.http.routers.api-http.rule=Host("pipeline.inqubi.eu")'
       - 'traefik.http.routers.api-http.entrypoints=http'
       - 'traefik.http.routers.api-http.middlewares=redirect-to-https'
-      - 'traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https'
 
-      # HTTPS router with Let's Encrypt
-      - 'traefik.http.routers.api.rule=Host(`pipeline.inqubi.eu`)'
+      # HTTPS Router
+      - 'traefik.http.routers.api.rule=Host("pipeline.inqubi.eu")'
       - 'traefik.http.routers.api.entrypoints=https'
       - 'traefik.http.routers.api.tls.certresolver=letsencrypt'
 
@@ -38,10 +40,10 @@ services:
       - 'traefik.http.services.api.loadbalancer.server.port=${SERVER_PORT}'
     networks:
       - log-net
+      - traefik_network
 
 networks:
   log-net:
     driver: bridge
-  default:
-    external:
-      name: traefik_network
+  traefik_network:
+    external: true
