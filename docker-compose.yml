@@ -43,5 +43,5 @@ networks:
   log-net:
     driver: bridge
   default:
-    traefik_network:
-      external: true
+    external:
+      name: traefik_network
