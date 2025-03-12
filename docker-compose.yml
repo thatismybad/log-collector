@@ -26,7 +26,7 @@ services:
       - proxy-net
 
 networks:
-  log-test:
+  log-net:
     driver: bridge
   proxy-net:
     external: true
