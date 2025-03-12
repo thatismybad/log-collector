@@ -9,7 +9,6 @@ services:
       - ./data:/var/lib/postgresql/data
     networks:
       - log-net
-      - proxy-net
 
   api:
     build:
@@ -21,12 +20,19 @@ services:
       - db
     env_file:
       - .env
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.wordpress.rule=Host(`pipeline.inqubi.eu`)'
+      - 'traefik.http.services.wordpress.loadbalancer.server.port=4000'
+      - 'traefik.http.routers.wordpress.tls.certresolver=letsencrypt'
+      - 'traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https'
+      - 'traefik.http.routers.wordpress.middlewares=redirect-to-https'
     networks:
       - log-net
-      - proxy-net
 
 networks:
   log-net:
     driver: bridge
-  proxy-net:
-    external: true
+  default:
+    external:
+      name: traefik_network
